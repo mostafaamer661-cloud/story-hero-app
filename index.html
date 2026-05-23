@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#6c63ff" />
+  <title>بطل الحكاية</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <style>
+    :root{
+      --bg:#eef3ff;
+      --bg2:#f8fbff;
+      --card:rgba(255,255,255,.86);
+      --text:#1f2a44;
+      --muted:#67758f;
+      --primary:#6c63ff;
+      --primary2:#4f46e5;
+      --green:#22c55e;
+      --gold:#ffb703;
+      --red:#ef476f;
+      --blue:#4dabf7;
+      --border:#e8eeff;
+      --shadow:0 18px 44px rgba(89,103,255,.14);
+      --radius:28px;
+      --radius2:20px;
+      --radius3:16px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;min-height:100%}
+    body{
+      font-family:Tahoma,Arial,sans-serif;
+      background:
+        radial-gradient(circle at 12% 10%, #fff4c9 0, transparent 18%),
+        radial-gradient(circle at 88% 12%, #dff8ff 0, transparent 18%),
+        linear-gradient(180deg, #edf3ff 0%, #f9fbff 100%);
+      color:var(--text);
+    }
+
+    .app{
+      max-width:1280px;
+      margin:auto;
+      padding:16px;
+    }
+
+    .screen{display:none;animation:fade .25s ease}
+    .screen.active{display:block}
+    @keyframes fade{
+      from{opacity:0;transform:translateY(8px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+
+    .top-note{
+      position:sticky;
+      top:0;
+      z-index:100;
+      background:linear-gradient(90deg,#4f46e5,#6c63ff,#4dabf7);
+      color:#fff;
+      text-align:center;
+      padding:12px 16px;
+      font-weight:900;
+      line-height:1.7;
+      box-shadow:0 4px 20px rgba(79,70,229,.18);
+    }
+
+    .hero{
+      background:linear-gradient(135deg,#6c63ff,#7f77ff 45%,#4dabf7 100%);
+      color:#fff;
+      border-radius:34px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      padding:26px;
+      position:relative;
+    }
+
+    .hero::before,.hero::after{
+      content:"";
+      position:absolute;
+      border-radius:50%;
+      background:rgba(255,255,255,.12);
+      pointer-events:none;
+    }
+    .hero::before{width:220px;height:220px;top:-70px;left:-60px}
+    .hero::after{width:160px;height:160px;bottom:-20px;right:-20px}
+
+    .hero-grid{
+      position:relative;
+      z-index:1;
+      display:grid;
+      grid-template-columns:1.2fr .8fr;
+      gap:18px;
+      align-items:center;
+    }
+
+    .hero h1{
+      margin:0 0 12px;
+      font-size:2.25rem;
+      line-height:1.35;
+    }
+
+    .hero p{
+      margin:0 0 18px;
+      line-height:1.95;
+      max-width:760px;
+      color:rgba(255,255,255,.96);
+    }
+
+    .badge-row,.actions,.top-actions,.lang-switch,.social-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .badge{
+      background:rgba(255,255,255,.16);
+      border:1px solid rgba(255,255,255,.2);
+      border-radius:999px;
+      padding:10px 14px;
+      font-weight:800;
+    }
+
+    .btn{
+      border:none;
+      cursor:pointer;
+      font-family:inherit;
+      font-weight:800;
+      border-radius:16px;
+      padding:13px 18px;
+      font-size:1rem;
+      transition:.2s ease;
+    }
+    .btn:hover{transform:translateY(-2px)}
+    .btn-primary{background:#fff;color:var(--primary2)}
+    .btn-soft{background:#edf2ff;color:var(--primary2)}
+    .btn-success{background:var(--green);color:#fff}
+    .btn-danger{background:#ffe4ea;color:#a81f4b}
+    .btn-outline{background:transparent;border:2px solid rgba(108,99,255,.2);color:var(--primary2)}
+    .btn-gold{background:var(--gold);color:#6b4a00}
+
+    .card{
+      background:var(--card);
+      border:1px solid rgba(255,255,255,.72);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:20px;
+      backdrop-filter:blur(12px);
+    }
+
+    .center-card{max-width:680px;margin:32px auto}
+    .muted{color:var(--muted);line-height:1.8}
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:18px;
+      flex-wrap:wrap;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:900;
+      color:var(--primary2);
+      font-size:1.15rem;
+    }
+
+    .brand-icon{
+      width:46px;
+      height:46px;
+      border-radius:16px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(135deg,#ffd166,#ffb703);
+      box-shadow:var(--shadow);
+      font-size:1.3rem;
+      flex-shrink:0;
+    }
+
+    .lang-btn{
+      border:none;
+      background:#edf2ff;
+      color:var(--primary2);
+      border-radius:999px;
+      padding:10px 14px;
+      font-weight:900;
+      cursor:pointer;
+    }
+    .lang-btn.active{background:var(--primary);color:#fff}
+
+    .input{
+      width:100%;
+      border:2px solid #dfe7ff;
+      background:#fff;
+      border-radius:16px;
+      padding:14px 16px;
+      font-family:inherit;
+      font-size:1rem;
+      outline:none;
+      transition:.2s ease;
+      color:var(--text);
+    }
+    .input:focus{
+      border-color:#8b84ff;
+      box-shadow:0 0 0 5px rgba(108,99,255,.12);
+    }
+
+    .dashboard{
+      display:grid;
+      grid-template-columns:1.28fr .72fr;
+      gap:18px;
+      align-items:start;
+    }
+
+    .welcome{
+      background:linear-gradient(135deg,#fff,#f5f8ff);
+      border:1px solid #edf1ff;
+      border-radius:26px;
+      padding:18px;
+    }
+
+    .header-line{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .pill{
+      background:#edf1ff;
+      color:var(--primary2);
+      border-radius:999px;
+      padding:8px 12px;
+      font-weight:800;
+      font-size:.92rem;
+    }
+
+    .progress-box{margin-top:14px}
+    .progress-head{
+      display:flex;
+      justify-content:space-between;
+      margin-bottom:8px;
+      font-weight:800;
+    }
+    .progress-track{
+      height:18px;
+      background:#e8edff;
+      border-radius:999px;
+      overflow:hidden;
+    }
+    .progress-fill{
+      height:100%;
+      width:0%;
+      border-radius:999px;
+      background:linear-gradient(90deg,#22c55e,#82f0a6);
+      transition:width .28s ease;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:12px;
+      margin-top:16px;
+    }
+
+    .stat{
+      min-height:110px;
+      border-radius:22px;
+      color:#fff;
+      padding:16px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+    .s1{background:linear-gradient(135deg,#6c63ff,#8b84ff)}
+    .s2{background:linear-gradient(135deg,#ffb703,#ffd166);color:#6a4900}
+    .s3{background:linear-gradient(135deg,#22c55e,#5de08e)}
+    .s4{background:linear-gradient(135deg,#4dabf7,#7dc8ff)}
+    .num{font-size:1.8rem;font-weight:900}
+
+    .task-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:18px;
+    }
+
+    .task-card{
+      background:linear-gradient(180deg,#fff,#f7f9ff);
+      border:2px solid #edf1ff;
+      border-radius:24px;
+      padding:16px;
+      box-shadow:0 12px 24px rgba(86,100,255,.08);
+      position:relative;
+      overflow:hidden;
+      transition:.2s ease;
+    }
+    .task-card:hover{transform:translateY(-2px)}
+    .task-card.done{
+      background:linear-gradient(180deg,#f1fff7,#ecfff3);
+      border-color:rgba(34,197,94,.25);
+    }
+    .task-card.done::after{
+      content:"✓";
+      position:absolute;
+      top:12px;
+      left:12px;
+      width:34px;
+      height:34px;
+      display:grid;
+      place-items:center;
+      border-radius:12px;
+      background:var(--green);
+      color:#fff;
+      font-weight:900;
+    }
+
+    .task-top{display:flex;gap:12px;align-items:flex-start}
+    .task-icon{
+      width:60px;height:60px;
+      border-radius:20px;
+      display:grid;
+      place-items:center;
+      font-size:1.6rem;
+      box-shadow:0 10px 18px rgba(0,0,0,.05);
+      flex-shrink:0;
+    }
+    .task-title{margin:0;font-size:1.08rem;font-weight:900}
+    .task-sub{margin-top:6px;color:var(--muted);font-size:.95rem;line-height:1.7}
+
+    .task-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+
+    .mini-btn{
+      border:none;
+      cursor:pointer;
+      font-family:inherit;
+      font-weight:800;
+      border-radius:14px;
+      padding:10px 14px;
+    }
+    .mini-complete{background:var(--green);color:#fff}
+    .mini-undo{background:#ffe4ea;color:#a81f4b}
+    .mini-chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:8px 10px;
+      border-radius:999px;
+      background:#eef2ff;
+      color:var(--primary2);
+      font-weight:800;
+      font-size:.9rem;
+    }
+
+    .stack{display:grid;gap:18px}
+    .message-card{
+      border-radius:22px;
+      padding:18px;
+      border:2px dashed #ffd166;
+      background:linear-gradient(135deg,#fff7df,#fffdf6);
+    }
+    .message-card h3{margin:0 0 8px;color:#8a5a00}
+    .message-text{color:#7a5a1e;line-height:1.9;min-height:60px}
+
+    .week-grid{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns:repeat(7,1fr);
+      gap:8px;
+    }
+    .day{
+      text-align:center;
+      padding:10px 8px;
+      border-radius:16px;
+      background:#f2f5ff;
+      border:1px solid #e8eeff;
+      font-size:.92rem;
+    }
+    .day.good{
+      background:linear-gradient(135deg,#ddffea,#f3fff7);
+      border-color:rgba(34,197,94,.22);
+      color:#146c40;
+      font-weight:800;
+    }
+
+    .lock-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(16,22,39,.45);
+      backdrop-filter:blur(8px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+      z-index:9999;
+    }
+    .lock-overlay.show{display:flex}
+    .lock-box{
+      width:min(480px,100%);
+      background:#fff;
+      border-radius:28px;
+      box-shadow:0 24px 60px rgba(0,0,0,.22);
+      padding:22px;
+      border:1px solid #eef2ff;
+    }
+
+    .social-section{
+      margin-top:22px;
+      background:linear-gradient(135deg,rgba(255,255,255,.74),rgba(240,244,255,.9));
+      border:1px solid rgba(255,255,255,.7);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:22px;
+      backdrop-filter:blur(12px);
+    }
+    .social-header{
+      text-align:center;
+      margin-bottom:18px;
+    }
+    .social-header h2{
+      margin:0 0 6px;
+      color:var(--primary2);
+      font-size:1.35rem;
+    }
+    .social-header p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.8;
+    }
+    .social-note{
+      margin-top:12px;
+      background:linear-gradient(135deg,#fff7df,#fffcf0);
+      border:2px dashed #ffd166;
+      border-radius:16px;
+      padding:12px 16px;
+      color:#8a5a00;
+      font-weight:800;
+      line-height:1.8;
+    }
+
+    .social-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      gap:14px;
+    }
+    .social-card{
+      display:flex;
+      gap:14px;
+      align-items:center;
+      text-decoration:none;
+      color:var(--text);
+      background:#fff;
+      border-radius:20px;
+      padding:16px;
+      box-shadow:0 8px 20px rgba(0,0,0,.06);
+      border:2px solid transparent;
+      transition:.2s ease;
+    }
+    .social-card:hover{transform:translateY(-3px);box-shadow:0 14px 32px rgba(0,0,0,.1)}
+    .social-icon-wrap{
+      width:56px;height:56px;
+      border-radius:18px;
+      display:grid;
+      place-items:center;
+      flex-shrink:0;
+    }
+    .social-icon-wrap svg{width:34px;height:34px}
+    .social-card-body{flex:1;min-width:0}
+    .social-card-name{font-weight:900;font-size:1.05rem;margin-bottom:3px}
+    .social-card-url{
+      color:var(--muted);
+      font-size:.88rem;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .social-cta{
+      display:inline-block;
+      margin-top:7px;
+      padding:6px 12px;
+      border-radius:999px;
+      color:#fff;
+      font-size:.88rem;
+      font-weight:800;
+    }
+
+    .footer-note{
+      text-align:center;
+      margin-top:16px;
+      color:var(--muted);
+      font-size:.92rem;
+    }
+
+    .input-group{display:grid;gap:10px}
+    .panel-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    .list{display:grid;gap:12px}
+    .list-item{
+      background:#f8faff;
+      border:1px solid #ebf0ff;
+      border-radius:18px;
+      padding:14px;
+    }
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:#edf1ff;
+      color:var(--primary2);
+      font-weight:800;
+      font-size:.9rem;
+    }
+
+    .pwa-banner{
+      display:none;
+      position:fixed;
+      bottom:18px;
+      right:18px;
+      left:18px;
+      max-width:520px;
+      margin:auto;
+      background:linear-gradient(135deg,#6c63ff,#4dabf7);
+      color:#fff;
+      border-radius:24px;
+      padding:16px 18px;
+      box-shadow:0 16px 40px rgba(79,70,229,.35);
+      z-index:999;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .pwa-banner.show{display:flex}
+
+    @media(max-width:980px){
+      .hero-grid,.dashboard{grid-template-columns:1fr}
+      .stats{grid-template-columns:repeat(2,1fr)}
+      .task-grid,.social-grid{grid-template-columns:1fr}
+      .panel-grid{grid-template-columns:1fr}
+    }
+
+    @media(max-width:560px){
+      .app{padding:12px}
+      .hero,.card{padding:16px;border-radius:22px}
+      .hero h1{font-size:1.75rem}
+      .week-grid{grid-template-columns:repeat(4,1fr)}
+      .stats{grid-template-columns:1fr}
+      .btn,.mini-btn{width:100%}
+      .actions,.top-actions,.badge-row{flex-direction:column}
+    }
+  </style>
+</head>
+<body>
+  <div class="top-note" id="topNote">هذا العمل صدق جارية لاصحاب قناة بطل الحكاية -نسألكم الدعاء لهم</div>
+
+  <div class="pwa-banner" id="pwaBanner">
+    <div style="flex:1;font-weight:800;line-height:1.65">📱 يمكنك تثبيت بطل الحكاية على جهازك!</div>
+    <button class="btn btn-primary" id="btnInstall">تثبيت</button>
+    <button class="btn btn-outline" style="background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.3);color:#fff" onclick="document.getElementById('pwaBanner').classList.remove('show')">لاحقًا</button>
+  </div>
+
+  <div class="app">
+
+    <section id="screen-home" class="screen active">
+      <div class="hero">
+        <div class="hero-grid">
+          <div>
+            <h1 data-i18n="appTitle">بطل الحكاية</h1>
+            <p data-i18n="heroDesc">تطبيق ممتع يساعد الطفل على الصلاة والواجب والنظافة والنوم وقراءة القرآن بطريقة مغامرة مع نجوم واحتفال وأصوات تشجيعية.</p>
+            <div class="badge-row">
+              <div class="badge" data-i18n="b1">⭐ نجوم يومية</div>
+              <div class="badge" data-i18n="b2">🎉 احتفال بالإنجاز</div>
+              <div class="badge" data-i18n="b3">📱 PWA قابل للتثبيت</div>
+            </div>
+            <div class="actions" style="margin-top:18px">
+              <button class="btn btn-primary" onclick="goTo('screen-name')" data-i18n="start">ابدأ التحدي اليومي</button>
+              <button class="btn btn-gold" onclick="loadDemo()" data-i18n="demo">تشغيل سريع</button>
+              <button class="btn btn-soft" onclick="goTo('screen-social')">مواقع التواصل</button>
+            </div>
+          </div>
+          <div class="card" style="background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.16);backdrop-filter:blur(8px)">
+            <svg viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:300px;height:auto;display:block;margin:auto">
+              <defs>
+                <linearGradient id="ga" x1="0" x2="1"><stop offset="0%" stop-color="#ffd166"/><stop offset="100%" stop-color="#ffb703"/></linearGradient>
+                <linearGradient id="gb" x1="0" x2="1"><stop offset="0%" stop-color="#ff7eb6"/><stop offset="100%" stop-color="#ef476f"/></linearGradient>
+                <linearGradient id="gc" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#6c63ff"/></linearGradient>
+              </defs>
+              <ellipse cx="160" cy="230" rx="60" ry="16" fill="rgba(108,99,255,.13)"/>
+              <path d="M160 152 L100 192 L116 270 L160 240 L204 270 L220 192 Z" fill="url(#gb)" opacity=".92"/>
+              <path d="M160 196 L164 208 L177 209 L167 217 L170 230 L160 223 L150 230 L153 217 L143 209 L156 208 Z" fill="#fff7d1"/>
+              <circle cx="160" cy="112" r="72" fill="url(#ga)"/>
+              <circle cx="136" cy="102" r="9" fill="#fff"/><circle cx="184" cy="102" r="9" fill="#fff"/>
+              <circle cx="138" cy="104" r="5" fill="#2d2b55"/><circle cx="186" cy="104" r="5" fill="#2d2b55"/>
+              <circle cx="140" cy="102" r="1.5" fill="#fff"/><circle cx="188" cy="102" r="1.5" fill="#fff"/>
+              <ellipse cx="122" cy="120" rx="12" ry="7" fill="#ffb0c8" opacity=".5"/>
+              <ellipse cx="198" cy="120" rx="12" ry="7" fill="#ffb0c8" opacity=".5"/>
+              <path d="M136 135 Q160 158 184 135" fill="none" stroke="#8a4f00" stroke-width="6" stroke-linecap="round"/>
+              <path d="M100 190 Q76 220 92 252" fill="none" stroke="#ef476f" stroke-width="13" stroke-linecap="round"/>
+              <path d="M220 190 Q244 220 228 252" fill="none" stroke="#ef476f" stroke-width="13" stroke-linecap="round"/>
+              <path d="M126 260 Q120 285 106 298" fill="none" stroke="#ef476f" stroke-width="13" stroke-linecap="round"/>
+              <path d="M194 260 Q200 285 214 298" fill="none" stroke="#ef476f" stroke-width="13" stroke-linecap="round"/>
+              <path d="M120 62 L132 82 L160 68 L188 82 L200 62 L192 90 L128 90 Z" fill="url(#gc)"/>
+              <circle cx="120" cy="62" r="7" fill="#ffd166"/><circle cx="160" cy="58" r="7" fill="#ffd166"/><circle cx="200" cy="62" r="7" fill="#ffd166"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="footer-note">تطبيق عربي وإنجليزي يعمل بالكامل في ملف واحد.</div>
+    </section>
+
+    <section id="screen-name" class="screen">
+      <div class="topbar">
+        <div class="brand"><div class="brand-icon">✨</div><span data-i18n="regTitle">تسجيل اسم البطل</span></div>
+        <div class="lang-switch">
+          <button class="lang-btn active" id="btnAr" onclick="setLang('ar')">العربية</button>
+          <button class="lang-btn" id="btnEn" onclick="setLang('en')">English</button>
+        </div>
+        <button class="btn btn-outline" onclick="goTo('screen-home')" data-i18n="back">رجوع</button>
+      </div>
+      <div class="card center-card">
+        <h2 data-i18n="enterName">اكتب اسم الطفل</h2>
+        <p class="muted" data-i18n="enterNameHint">بعد إدخال الاسم سيظهر ترحيب شخصي.</p>
+        <input id="childNameInput" class="input" type="text" maxlength="30" placeholder="مثال: محمد" />
+        <div class="actions" style="margin-top:16px">
+          <button class="btn btn-success" onclick="saveNameAndStart()" data-i18n="begin">ابدأ التحدي ✨</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-tasks" class="screen">
+      <div class="topbar">
+        <div class="brand"><div class="brand-icon">🦸</div><span data-i18n="appTitle">بطل الحكاية</span></div>
+        <div class="lang-switch" style="margin-right:auto;margin-left:auto">
+          <button class="lang-btn active" id="btnAr2" onclick="setLang('ar')">العربية</button>
+          <button class="lang-btn" id="btnEn2" onclick="setLang('en')">English</button>
+        </div>
+        <div class="top-actions">
+          <button class="btn btn-soft" onclick="goTo('screen-points')" data-i18n="points">النقاط والنجوم</button>
+          <button class="btn btn-soft" onclick="goTo('screen-report')" data-i18n="report">تقرير اليوم</button>
+          <button class="btn btn-outline" onclick="openParentLock()" data-i18n="parents">إعدادات الوالدين</button>
+        </div>
+      </div>
+
+      <div class="dashboard">
+        <div>
+          <div class="card welcome">
+            <div class="header-line">
+              <div>
+                <h2 id="welcomeTitle" style="margin:0 0 8px">مرحبًا يا بطل</h2>
+                <div id="welcomeText" class="muted">هل أنت مستعد لتحدي اليوم؟</div>
+              </div>
+              <div class="pill" id="todayDate"></div>
+            </div>
+            <div class="progress-box">
+              <div class="progress-head">
+                <span data-i18n="progressBar">شريط التقدم</span>
+                <span id="progressPct">0%</span>
+              </div>
+              <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
+            </div>
+            <div class="stats">
+              <div class="stat s1"><span data-i18n="doneTasks">المهام المنجزة</span><span class="num" id="doneCount">0</span></div>
+              <div class="stat s2"><span data-i18n="stars">النجوم</span><span class="num" id="starsCount">0</span></div>
+              <div class="stat s3"><span data-i18n="remaining">المتبقي</span><span class="num" id="remainCount">0</span></div>
+              <div class="stat s4"><span data-i18n="badges">الشارات</span><span class="num" id="badgeCount">0</span></div>
+            </div>
+          </div>
+
+          <div id="tasksWrap" class="task-grid"></div>
+        </div>
+
+        <div class="stack">
+          <div class="card">
+            <div class="message-card">
+              <h3 data-i18n="heroMsg">رسالة البطل</h3>
+              <div id="encourageText" class="message-text">ابدأ أول مهمة لتحصل على أول نجمة اليوم ✨</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 data-i18n="weekCal">التقويم الأسبوعي</h3>
+            <p class="muted" data-i18n="weekHint">اليوم الجيد يتجاوز 50% إنجازًا.</p>
+            <div id="weekGrid" class="week-grid"></div>
+          </div>
+
+          <div class="card">
+            <h3 data-i18n="rewards">المكافآت</h3>
+            <div id="quickBadges" class="list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-points" class="screen">
+      <div class="topbar">
+        <div class="brand"><div class="brand-icon">⭐</div><span data-i18n="points">النقاط والنجوم</span></div>
+        <button class="btn btn-outline" onclick="goTo('screen-tasks')" data-i18n="backTasks">العودة للمهام</button>
+      </div>
+      <div class="dashboard">
+        <div class="card">
+          <h2 data-i18n="boardTitle">لوحة الإنجاز</h2>
+          <p class="muted" data-i18n="boardHint">كل مهمة مكتملة تعطي نقاطًا ونجمة وشعورًا بالإنجاز.</p>
+          <div class="stats">
+            <div class="stat s1"><span data-i18n="totalPts">إجمالي النقاط</span><span class="num" id="ptTotal">0</span></div>
+            <div class="stat s2"><span data-i18n="totalStars">إجمالي النجوم</span><span class="num" id="stTotal">0</span></div>
+            <div class="stat s3"><span data-i18n="completed">المكتمل</span><span class="num" id="cmpTotal">0</span></div>
+            <div class="stat s4"><span data-i18n="rate">نسبة الإنجاز</span><span class="num" id="rateTotal">0%</span></div>
+          </div>
+          <div class="card" style="margin-top:18px;background:#fffdf5">
+            <h3 data-i18n="todayStars">نجوم اليوم</h3>
+            <div id="starsRow" class="stars"></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 data-i18n="earnedBadges">الشارات المكتسبة</h3>
+          <div id="badgesList" class="list"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-report" class="screen">
+      <div class="topbar">
+        <div class="brand"><div class="brand-icon">📘</div><span data-i18n="report">تقرير اليوم</span></div>
+        <button class="btn btn-outline" onclick="goTo('screen-tasks')" data-i18n="backTasks">العودة للمهام</button>
+      </div>
+      <div class="dashboard">
+        <div class="card">
+          <h2 data-i18n="summaryTitle">ملخص الإنجاز</h2>
+          <div class="list">
+            <div class="list-item"><strong data-i18n="doneLabel">عدد المهام المنجزة</strong><div id="rptDone">0</div></div>
+            <div class="list-item"><strong data-i18n="undoneLabel">عدد المهام غير المكتملة</strong><div id="rptUndone">0</div></div>
+            <div class="list-item"><strong data-i18n="pctLabel">نسبة الإنجاز</strong><div id="rptPct">0%</div></div>
+            <div class="list-item"><strong data-i18n="motivLabel">رسالة تحفيزية</strong><div id="rptMsg">أنت تبني يومًا جميلًا خطوة خطوة.</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 data-i18n="pendingTasks">المهام غير المكتملة</h3>
+          <div id="notDoneList" class="list"></div>
+          <div class="actions" style="margin-top:14px">
+            <button class="btn btn-success" onclick="resetTodayTasks()" data-i18n="resetToday">إعادة ضبط مهام اليوم</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-settings" class="screen">
+      <div class="topbar">
+        <div class="brand"><div class="brand-icon">🔒</div><span data-i18n="parentsSettings">إعدادات الوالدين</span></div>
+        <button class="btn btn-outline" onclick="goTo('screen-tasks')" data-i18n="backApp">العودة للتطبيق</button>
+      </div>
+      <div class="dashboard">
+        <div class="card">
+          <h2 data-i18n="customTitle">تخصيص المهام والوقت</h2>
+          <p class="muted" data-i18n="customHint">يمكن تعديل الوقت المسموح للجوال والبلايستيشن وموعد النوم وإضافة مهام جديدة.</p>
+          <div class="panel-grid" style="margin-top:14px">
+            <div><label class="muted" data-i18n="mobileMin">وقت الجوال (دقائق)</label><input id="mobileInput" class="input" type="number" min="0" max="300" style="margin-top:6px"></div>
+            <div><label class="muted" data-i18n="psMin">وقت البلايستيشن (دقائق)</label><input id="psInput" class="input" type="number" min="0" max="300" style="margin-top:6px"></div>
+          </div>
+          <div class="panel-grid" style="margin-top:12px">
+            <div><label class="muted" data-i18n="sleepTime">موعد النوم</label><input id="sleepInput" class="input" type="time" style="margin-top:6px"></div>
+            <div><label class="muted" data-i18n="newTask">مهمة إضافية</label><input id="newTaskInput" class="input" type="text" placeholder="مثال: تجهيز الحقيبة" style="margin-top:6px"></div>
+          </div>
+          <div class="toggle-line" style="display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px;border-radius:18px;background:#f7f9ff;border:1px solid #e9eeff;margin-top:12px">
+            <div>
+              <strong data-i18n="parentPin">رمز القفل</strong>
+              <div class="muted" data-i18n="pinHint">رمز من 4 أرقام.</div>
+            </div>
+            <div class="tag">PIN: <span id="pinLabel">1234</span></div>
+          </div>
+          <div class="panel-grid" style="margin-top:12px">
+            <div><label class="muted" data-i18n="newPin">الرمز الجديد</label><input id="pinInput2" class="input" type="password" maxlength="4" placeholder="••••" style="margin-top:6px"></div>
+            <div><label class="muted">&nbsp;</label><button class="btn btn-gold" style="width:100%;margin-top:8px" onclick="saveSettings()" data-i18n="saveNow">حفظ الآن</button></div>
+          </div>
+          <div class="actions" style="margin-top:14px">
+            <button class="btn btn-success" onclick="addCustomTask()" data-i18n="addTask">إضافة المهمة</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3 data-i18n="currentTasks">المهام الحالية</h3>
+          <div id="settingsList" class="list"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-social" class="screen">
+      <div class="topbar">
+        <div class="brand"><div class="brand-icon">📢</div><span>التواصل الاجتماعي</span></div>
+        <button class="btn btn-outline" onclick="goTo('screen-home')">العودة للرئيسية</button>
+      </div>
+
+      <div class="social-section">
+        <div class="social-header">
+          <h2>للمزيد من المحتوي التعليمي و التربوي لابطالنا</h2>
+          <p>متابعتنا علي قنواتنا علي مواقع التواصل الاجتمالي</p>
+          <div class="social-note">ليصلكم كل جديد ......</div>
+        </div>
+
+        <div class="social-grid">
+          <a class="social-card" href="https://youtube.com/@story-hero-6616?si=qr1ILhWnpootijXC" target="_blank" rel="noopener" style="border-color:#ff000022">
+            <div class="social-icon-wrap" style="background:#ff00001a">
+              <svg viewBox="0 0 24 24" fill="#FF0000" xmlns="http://www.w3.org/2000/svg"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            </div>
+            <div class="social-card-body">
+              <div class="social-card-name">YouTube</div>
+              <div class="social-card-url">@story-hero-6616</div>
+              <span class="social-cta" style="background:#FF0000">تابعنا</span>
+            </div>
+          </a>
+
+          <a class="social-card" href="https://www.facebook.com/share/1EhHnozicg/" target="_blank" rel="noopener" style="border-color:#1877F222">
+            <div class="social-icon-wrap" style="background:#1877F21a">
+              <svg viewBox="0 0 24 24" fill="#1877F2" xmlns="http://www.w3.org/2000/svg"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            </div>
+            <div class="social-card-body">
+              <div class="social-card-name">Facebook</div>
+              <div class="social-card-url">facebook.com/share/1EhHnozicg</div>
+              <span class="social-cta" style="background:#1877F2">تابعنا</span>
+            </div>
+          </a>
+
+          <a class="social-card" href="https://www.tiktok.com/@storyhero6616?_r=1&_t=ZS-96QrfEPaejV" target="_blank" rel="noopener" style="border-color:#01010122">
+            <div class="social-icon-wrap" style="background:#ee1d521a">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" fill="#010101"/>
+                <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93" fill="#EE1D52"/>
+              </svg>
+            </div>
+            <div class="social-card-body">
+              <div class="social-card-name">TikTok</div>
+              <div class="social-card-url">@storyhero6616</div>
+              <span class="social-cta" style="background:linear-gradient(135deg,#ee1d52,#69c9d0)">تابعنا</span>
+            </div>
+          </a>
+
+          <a class="social-card" href="https://www.instagram.com/story_hero_6616?igsh=djJ4MGt3YWVlMWRs" target="_blank" rel="noopener" style="border-color:#c32aa322">
+            <div class="social-icon-wrap" style="background:linear-gradient(135deg,#f9ce3422,#ee2a7b22,#6228d722)">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="igGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#f9ce34"/>
+                    <stop offset="33%" stop-color="#ee2a7b"/>
+                    <stop offset="100%" stop-color="#6228d7"/>
+                  </linearGradient>
+                </defs>
+                <path fill="url(#igGrad)" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+              </svg>
+            </div>
+            <div class="social-card-body">
+              <div class="social-card-name">Instagram</div>
+              <div class="social-card-url">@story_hero_6616</div>
+              <span class="social-cta" style="background:linear-gradient(135deg,#f9ce34,#ee2a7b,#6228d7)">تابعنا</span>
+            </div>
+          </a>
+
+          <div class="social-card" style="cursor:default;border-color:#25D36622">
+            <div class="social-icon-wrap" style="background:#25D3661a">
+              <svg viewBox="0 0 24 24" fill="#25D366" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
+              </svg>
+            </div>
+            <div class="social-card-body">
+              <div class="social-card-name">WhatsApp</div>
+              <div class="social-card-url" dir="ltr">00966558631771</div>
+              <a class="social-cta" href="https://wa.me/966558631771" target="_blank" rel="noopener" style="background:#25D366;text-decoration:none;display:inline-block">تواصل معنا</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-note">هذا العمل صدق جارية — نسألكم الدعاء</div>
+    </section>
+
+  </div>
+
+  <div id="parentLock" class="lock-overlay">
+    <div class="lock-box">
+      <h3 style="margin:0 0 8px">دخول الوالدين</h3>
+      <p class="muted">أدخل رمز القفل المكوّن من 4 أرقام.</p>
+      <input id="pinEntry" class="input" type="password" maxlength="4" placeholder="••••" style="margin-top:12px" />
+      <div class="actions" style="margin-top:16px">
+        <button class="btn btn-success" onclick="checkPin()">فتح الإعدادات</button>
+        <button class="btn btn-outline" onclick="closeLock()">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const T = {
+      ar:{
+        appTitle:"بطل الحكاية",
+        heroDesc:"تطبيق ممتع يساعد الطفل على الصلاة والواجب والنظافة والنوم وقراءة القرآن بطريقة مغامرة مع نجوم واحتفال وأصوات تشجيعية.",
+        b1:"⭐ نجوم يومية", b2:"🎉 احتفال بالإنجاز", b3:"📱 PWA قابل للتثبيت",
+        start:"ابدأ التحدي اليومي", demo:"تشغيل سريع",
+        regTitle:"تسجيل اسم البطل", enterName:"اكتب اسم الطفل", enterNameHint:"بعد إدخال الاسم سيظهر ترحيب شخصي.", begin:"ابدأ التحدي ✨", back:"رجوع",
+        points:"النقاط والنجوم", report:"تقرير اليوم", parents:"إعدادات الوالدين",
+        progressBar:"شريط التقدم", doneTasks:"المهام المنجزة", stars:"النجوم", remaining:"المتبقي", badges:"الشارات",
+        heroMsg:"رسالة البطل", weekCal:"التقويم الأسبوعي", weekHint:"اليوم الجيد يتجاوز 50% إنجازًا.", rewards:"المكافآت",
+        backTasks:"العودة للمهام", boardTitle:"لوحة الإنجاز", boardHint:"كل مهمة مكتملة تعطي نقاطًا ونجمة.",
+        totalPts:"إجمالي النقاط", totalStars:"إجمالي النجوم", completed:"المكتمل", rate:"نسبة الإنجاز", todayStars:"نجوم اليوم", earnedBadges:"الشارات المكتسبة",
+        summaryTitle:"ملخص الإنجاز", doneLabel:"عدد المهام المنجزة", undoneLabel:"عدد المهام غير المكتملة", pctLabel:"نسبة الإنجاز", motivLabel:"رسالة تحفيزية",
+        pendingTasks:"المهام غير المكتملة", resetToday:"إعادة ضبط مهام اليوم",
+        parentsSettings:"إعدادات الوالدين", backApp:"العودة للتطبيق", customTitle:"تخصيص المهام والوقت", customHint:"يمكن تعديل الوقت المسموح للجوال والبلايستيشن وموعد النوم وإضافة مهام جديدة.",
+        mobileMin:"وقت الجوال (دقائق)", psMin:"وقت البلايستيشن (دقائق)", sleepTime:"موعد النوم", newTask:"مهمة إضافية",
+        parentPin:"رمز القفل", pinHint:"رمز من 4 أرقام.", newPin:"الرمز الجديد", saveNow:"حفظ الآن", addTask:"إضافة المهمة", currentTasks:"المهام الحالية"
+      },
+      en:{
+        appTitle:"Hero Story",
+        heroDesc:"A fun kids app for prayer, homework, hygiene, sleep, and Quran, wrapped in an adventure with stars, confetti, and encouraging sounds.",
+        b1:"⭐ Daily stars", b2:"🎉 Celebrate achievements", b3:"📱 Installable PWA",
+        start:"Start daily challenge", demo:"Quick demo",
+        regTitle:"Hero name sign-in", enterName:"Enter the child's name", enterNameHint:"A personal greeting will appear after entering the name.", begin:"Start challenge ✨", back:"Back",
+        points:"Points & stars", report:"Today's report", parents:"Parents settings",
+        progressBar:"Progress bar", doneTasks:"Completed tasks", stars:"Stars", remaining:"Remaining", badges:"Badges",
+        heroMsg:"Hero message", weekCal:"Weekly calendar", weekHint:"A good day has over 50% completion.", rewards:"Rewards",
+        backTasks:"Back to tasks", boardTitle:"Achievement board", boardHint:"Every completed task gives points and a star.",
+        totalPts:"Total points", totalStars:"Total stars", completed:"Completed", rate:"Completion rate", todayStars:"Today's stars", earnedBadges:"Earned badges",
+        summaryTitle:"Achievement summary", doneLabel:"Completed tasks", undoneLabel:"Incomplete tasks", pctLabel:"Completion rate", motivLabel:"Motivational message",
+        pendingTasks:"Incomplete tasks", resetToday:"Reset today's tasks",
+        parentsSettings:"Parents settings", backApp:"Back to app", customTitle:"Customize tasks & time", customHint:"Adjust screen time and add tasks.",
+        mobileMin:"Mobile time (min)", psMin:"PlayStation time (min)", sleepTime:"Bedtime", newTask:"Extra task",
+        parentPin:"Lock code", pinHint:"4-digit PIN.", newPin:"New code", saveNow:"Save now", addTask:"Add task", currentTasks:"Current tasks"
+      }
+    };
+
+    let lang = localStorage.getItem("hs_lang") || "ar";
+    const STORAGE_KEY = "hero_story_state_v2";
+
+    const BASE_TASKS = [
+      {id:"fajr",ar:"صلاة الفجر",en:"Fajr prayer",icon:"🕌",color:"#e7f2ff",points:10},
+      {id:"dhuhr",ar:"صلاة الظهر",en:"Dhuhr prayer",icon:"🕌",color:"#e7f2ff",points:10},
+      {id:"asr",ar:"صلاة العصر",en:"Asr prayer",icon:"🕌",color:"#e7f2ff",points:10},
+      {id:"maghrib",ar:"صلاة المغرب",en:"Maghrib prayer",icon:"🕌",color:"#e7f2ff",points:10},
+      {id:"isha",ar:"صلاة العشاء",en:"Isha prayer",icon:"🕌",color:"#e7f2ff",points:10},
+      {id:"teetham",ar:"غسل الأسنان صباحًا",en:"Brush teeth (morning)",icon:"🪥",color:"#fff1de",points:8},
+      {id:"teethpm",ar:"غسل الأسنان مساءً",en:"Brush teeth (night)",icon:"🪥",color:"#fff1de",points:8},
+      {id:"room",ar:"ترتيب ونظافة الغرفة",en:"Tidy the room",icon:"🧹",color:"#f4edff",points:12},
+      {id:"homework",ar:"حل الواجبات المدرسية",en:"Do homework",icon:"📚",color:"#e8fff2",points:14},
+      {id:"quran",ar:"قراءة القرآن",en:"Read Quran",icon:"📖",color:"#ebfff0",points:12},
+      {id:"mobile",ar:"الالتزام بوقت استخدام الجوال",en:"Follow mobile time",icon:"📱",color:"#edf5ff",points:8},
+      {id:"ps",ar:"الالتزام بوقت البلايستيشن",en:"Follow PlayStation time",icon:"🎮",color:"#f2eeff",points:8},
+      {id:"sleep",ar:"الالتزام بموعد النوم",en:"Go to bed on time",icon:"😴",color:"#eef3ff",points:12},
+      {id:"healthy",ar:"شرب الماء أو تناول وجبة صحية",en:"Drink water or eat healthy",icon:"🥗",color:"#ecfff2",points:8}
+    ];
+
+    const BADGES = [
+      {id:"b1",ar:"شارة البداية",en:"Start Badge",icon:"🌟",test:s=>doneCount(s)>=1},
+      {id:"b2",ar:"شارة النشاط",en:"Energy Badge",icon:"🚀",test:s=>doneCount(s)>=3},
+      {id:"b3",ar:"شارة التقدم",en:"Progress Badge",icon:"🏅",test:s=>completionRate(s)>=50},
+      {id:"b4",ar:"شارة بطل اليوم",en:"Hero of the Day",icon:"👑",test:s=>completionRate(s)>=80}
+    ];
+
+    const CHEERS = {
+      ar:["أحسنت يا بطل!","ممتاز، اقتربت من الفوز!","رائع، أنجزت مهمة جديدة!","يا سلام، تقدمك جميل!","استمر، تبني يومًا مميزًا!","كل نجمة تعني نجاحًا جديدًا!","بقي القليل لتصبح بطل اليوم!"],
+      en:["Great job, hero!","Amazing, you're close!","Awesome, new task done!","Fantastic progress!","Keep going, great day!","Each star means a new success!","Almost there, hero of the day!"]
+    };
+
+    function t(k){return T[lang][k] || k}
+    function nf(n){return n.toLocaleString(lang==="ar" ? "ar-EG-u-nu-arab" : "en-US")}
+    function weekdayAr(i){return["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"][i]}
+    function weekdayEn(i){return["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][i]}
+    function todayKey(){
+      const d=new Date();
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    }
+
+    function loadState(){
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        try{
+          const s = JSON.parse(raw);
+          if(!s.days) s.days = {};
+          if(!s.settings) s.settings = {};
+          if(!Array.isArray(s.customTasks)) s.customTasks = [];
+          if(!s.weeklyMarks) s.weeklyMarks = {};
+          s.settings.mobileMin ??= 60;
+          s.settings.psMin ??= 60;
+          s.settings.sleepTime ??= "21:30";
+          s.settings.pin ??= "1234";
+          ensureToday(s);
+          return s;
+        }catch(e){}
+      }
+      const s = {
+        childName:"",
+        customTasks:[],
+        weeklyMarks:{},
+        settings:{mobileMin:60,psMin:60,sleepTime:"21:30",pin:"1234"},
+        days:{}
+      };
+      ensureToday(s);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+      return s;
+    }
+
+    function ensureToday(state){
+      const key = todayKey();
+      if(!state.days[key]){
+        const tasks = BASE_TASKS.map(t=>({...t,done:false}));
+        state.customTasks.forEach((c,i)=>{
+          tasks.push({
+            id:"c-"+Date.now()+"-"+i,
+            ar:c.ar || c.title,
+            en:c.en || c.title,
+            icon:c.icon || "✨",
+            color:c.color || "#fff6e8",
+            points:c.points || 8,
+            done:false
+          });
+        });
+        const mobile = tasks.find(x=>x.id==="mobile");
+        const ps = tasks.find(x=>x.id==="ps");
+        const sleep = tasks.find(x=>x.id==="sleep");
+        if(mobile){mobile.ar=`الالتزام بوقت استخدام الجوال (${state.settings.mobileMin} دقيقة)`;mobile.en=`Follow mobile time (${state.settings.mobileMin} min)`;}
+        if(ps){ps.ar=`الالتزام بوقت البلايستيشن (${state.settings.psMin} دقيقة)`;ps.en=`Follow PlayStation time (${state.settings.psMin} min)`;}
+        if(sleep){sleep.ar=`الالتزام بموعد النوم (${state.settings.sleepTime})`;sleep.en=`Bedtime (${state.settings.sleepTime})`;}
+        state.days[key] = {
+          tasks,
+          points:0,
+          stars:0,
+          badges:[],
+          lastMsg: lang==="ar" ? "ابدأ أول مهمة لتحصل على أول نجمة اليوم ✨" : "Start your first task to earn your first star ✨"
+        };
+      }
+    }
+
+    let state = loadState();
+
+    function saveState(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function getToday(){
+      ensureToday(state);
+      return state.days[todayKey()];
+    }
+
+    function doneCount(s=getToday()){return s.tasks.filter(t=>t.done).length}
+    function completionRate(s=getToday()){return s.tasks.length ? Math.round((doneCount(s)/s.tasks.length)*100) : 0}
+    function earnedBadges(s=getToday()){return BADGES.filter(b=>b.test(s)).map(b=>({id:b.id,label:lang==="ar"?b.ar:b.en,icon:b.icon}))}
+
+    function setLang(l){
+      lang = l;
+      localStorage.setItem("hs_lang", l);
+      document.documentElement.lang = l;
+      document.documentElement.dir = "rtl";
+      updateLangButtons();
+      renderAll();
+    }
+
+    function updateLangButtons(){
+      ["btnAr","btnAr2"].forEach(id=>{
+        const el=document.getElementById(id);
+        if(el) el.classList.toggle("active", lang==="ar");
+      });
+      ["btnEn","btnEn2"].forEach(id=>{
+        const el=document.getElementById(id);
+        if(el) el.classList.toggle("active", lang==="en");
+      });
+    }
+
+    function applyI18n(){
+      document.querySelectorAll("[data-i18n]").forEach(el=>{
+        const k = el.getAttribute("data-i18n");
+        if(T[lang][k]) el.textContent = T[lang][k];
+      });
+    }
+
+    function goTo(id){
+      document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      renderAll();
+    }
+
+    function loadDemo(){
+      state.childName = lang==="ar" ? "محمد" : "Mohammed";
+      saveState();
+      goTo("screen-tasks");
+      celebrate();
+    }
+
+    function saveNameAndStart(){
+      const input = document.getElementById("childNameInput");
+      const name = input.value.trim();
+      if(!name){
+        alert(lang==="ar" ? "فضلاً اكتب اسم الطفل" : "Please enter the child's name");
+        return;
+      }
+      state.childName = name;
+      saveState();
+      goTo("screen-tasks");
+      celebrate();
+    }
+
+    function completeTask(id){
+      const d = getToday();
+      const task = d.tasks.find(x=>x.id===id);
+      if(!task || task.done) return;
+      task.done = true;
+      d.points += task.points;
+      d.stars += 1;
+      d.lastMsg = CHEERS[lang][Math.floor(Math.random()*CHEERS[lang].length)];
+      d.badges = earnedBadges(d);
+      state.weeklyMarks[todayKey()] = {completed:doneCount(d),total:d.tasks.length,goodDay:completionRate(d)>=50};
+      saveState();
+      celebrate();
+      renderAll();
+    }
+
+    function undoTask(id){
+      const d = getToday();
+      const task = d.tasks.find(x=>x.id===id);
+      if(!task || !task.done) return;
+      task.done = false;
+      d.points = Math.max(0, d.points - task.points);
+      d.stars = Math.max(0, d.stars - 1);
+      d.lastMsg = lang==="ar" ? "لا بأس يا بطل، يمكنك المحاولة مجددًا!" : "No worries, try again!";
+      d.badges = earnedBadges(d);
+      state.weeklyMarks[todayKey()] = {completed:doneCount(d),total:d.tasks.length,goodDay:completionRate(d)>=50};
+      saveState();
+      renderAll();
+    }
+
+    function resetTodayTasks(){
+      if(!confirm(lang==="ar" ? "هل تريد إعادة ضبط مهام اليوم؟" : "Reset today's tasks?")) return;
+      const d = getToday();
+      d.tasks.forEach(t=>t.done=false);
+      d.points = 0;
+      d.stars = 0;
+      d.badges = [];
+      d.lastMsg = lang==="ar" ? "تمت إعادة الضبط. هيا نبدأ من جديد!" : "Day reset. Let's start fresh!";
+      state.weeklyMarks[todayKey()] = {completed:0,total:d.tasks.length,goodDay:false};
+      saveState();
+      renderAll();
+    }
+
+    function openParentLock(){
+      document.getElementById("pinEntry").value = "";
+      document.getElementById("parentLock").classList.add("show");
+    }
+    function closeLock(){
+      document.getElementById("parentLock").classList.remove("show");
+    }
+    function checkPin(){
+      const v = document.getElementById("pinEntry").value.trim();
+      if(v === state.settings.pin){
+        closeLock();
+        goTo("screen-settings");
+      }else{
+        alert(lang==="ar" ? "رمز القفل غير صحيح" : "Incorrect lock code");
+      }
+    }
+
+    function saveSettings(){
+      const mobile = Number(document.getElementById("mobileInput").value || 0);
+      const ps = Number(document.getElementById("psInput").value || 0);
+      const sleep = document.getElementById("sleepInput").value || "21:30";
+      const newPin = document.getElementById("pinInput2").value.trim();
+
+      state.settings.mobileMin = mobile;
+      state.settings.psMin = ps;
+      state.settings.sleepTime = sleep;
+      if(/^\d{4}$/.test(newPin)) state.settings.pin = newPin;
+
+      const d = getToday();
+      const mo = d.tasks.find(x=>x.id==="mobile");
+      const p = d.tasks.find(x=>x.id==="ps");
+      const sl = d.tasks.find(x=>x.id==="sleep");
+      if(mo){mo.ar=`الالتزام بوقت استخدام الجوال (${mobile} دقيقة)`;mo.en=`Follow mobile time (${mobile} min)`;}
+      if(p){p.ar=`الالتزام بوقت البلايستيشن (${ps} دقيقة)`;p.en=`Follow PlayStation time (${ps} min)`;}
+      if(sl){sl.ar=`الالتزام بموعد النوم (${sleep})`;sl.en=`Bedtime (${sleep})`;}
+
+      saveState();
+      document.getElementById("pinInput2").value = "";
+      alert(lang==="ar" ? "تم حفظ الإعدادات بنجاح" : "Settings saved!");
+      renderAll();
+    }
+
+    function addCustomTask(){
+      const inp = document.getElementById("newTaskInput");
+      const title = inp.value.trim();
+      if(!title){
+        alert(lang==="ar" ? "اكتب اسم المهمة الجديدة" : "Enter the task name");
+        return;
+      }
+      state.customTasks.push({ar:title,en:title,icon:"✨",color:"#fff6e8",points:8});
+      const d = getToday();
+      d.tasks.push({
+        id:"c-"+Date.now(),
+        ar:title,
+        en:title,
+        icon:"✨",
+        color:"#fff6e8",
+        points:8,
+        done:false
+      });
+      inp.value = "";
+      saveState();
+      renderAll();
+    }
+
+    function removeTask(id){
+      const d = getToday();
+      const idx = d.tasks.findIndex(x=>x.id===id);
+      if(idx<0) return;
+      const task = d.tasks[idx];
+      if(task.done){
+        d.points = Math.max(0, d.points - task.points);
+        d.stars = Math.max(0, d.stars - 1);
+      }
+      d.tasks.splice(idx,1);
+      state.customTasks = state.customTasks.filter(c => (c.ar || c.title) !== task.ar);
+      d.badges = earnedBadges(d);
+      saveState();
+      renderAll();
+    }
+
+    function renderMain(){
+      const d = getToday();
+      d.badges = earnedBadges(d);
+
+      const child = state.childName || (lang==="ar" ? "يا بطل" : "Hero");
+      const now = new Date();
+      const done = doneCount(d);
+      const total = d.tasks.length;
+      const rate = completionRate(d);
+
+      document.getElementById("welcomeTitle").textContent =
+        lang==="ar" ? `مرحبًا ${child}، هل أنت مستعد لتحدي اليوم؟` : `Hello ${child}, ready for today's challenge?`;
+      document.getElementById("welcomeText").textContent =
+        lang==="ar" ? "أنجز مهامك اليومية واجمع النجوم لتصبح بطل التنظيم." : "Complete your daily tasks and collect stars to become an organizing hero.";
+      document.getElementById("todayDate").textContent =
+        lang==="ar" ? `${weekdayAr(now.getDay())} ${now.toLocaleDateString("ar-EG-u-nu-arab")}` : `${weekdayEn(now.getDay())} ${now.toLocaleDateString("en-US")}`;
+
+      document.getElementById("doneCount").textContent = nf(done);
+      document.getElementById("starsCount").textContent = nf(d.stars);
+      document.getElementById("remainCount").textContent = nf(total - done);
+      document.getElementById("badgeCount").textContent = nf(d.badges.length);
+      document.getElementById("progressPct").textContent = nf(rate) + "%";
+      document.getElementById("progressFill").style.width = rate + "%";
+      document.getElementById("encourageText").textContent = d.lastMsg;
+    }
+
+    function renderTasks(){
+      const d = getToday();
+      const wrap = document.getElementById("tasksWrap");
+      wrap.innerHTML = "";
+      d.tasks.forEach(task=>{
+        const title = lang==="ar" ? task.ar : task.en;
+        const el = document.createElement("div");
+        el.className = "task-card" + (task.done ? " done" : "");
+        el.innerHTML = `
+          <div class="task-top">
+            <div class="task-icon" style="background:${task.color}">${task.icon}</div>
+            <div>
+              <h3 class="task-title">${title}</h3>
+              <div class="task-sub">${lang==="ar" ? `تحصل على ${task.points} نقطة` : `Earn ${task.points} pts`}</div>
+            </div>
+          </div>
+          <div class="task-actions">
+            ${task.done
+              ? `<button class="mini-btn mini-undo" onclick="undoTask('${task.id}')">${lang==="ar" ? "تراجع" : "Undo"}</button><span class="mini-chip">⭐ ${lang==="ar" ? "تم الإنجاز" : "Done"}</span>`
+              : `<button class="mini-btn mini-complete" onclick="completeTask('${task.id}')">${lang==="ar" ? "تم الإنجاز" : "Done"}</button><span class="mini-chip">🎯 ${lang==="ar" ? "مهمة اليوم" : "Today's task"}</span>`}
+          </div>
+        `;
+        wrap.appendChild(el);
+      });
+    }
+
+    function renderWeek(){
+      const grid = document.getElementById("weekGrid");
+      grid.innerHTML = "";
+      const base = new Date();
+      for(let i=6;i>=0;i--){
+        const d = new Date(base);
+        d.setDate(base.getDate()-i);
+        const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+        const mark = state.weeklyMarks[key];
+        const el = document.createElement("div");
+        el.className = "day" + (mark && mark.goodDay ? " good" : "");
+        el.innerHTML = `
+          <div>${lang==="ar" ? weekdayAr(d.getDay()) : weekdayEn(d.getDay())}</div>
+          <div style="margin-top:6px">${mark ? (mark.goodDay ? "✅" : "•") : "—"}</div>
+        `;
+        grid.appendChild(el);
+      }
+    }
+
+    function renderBadges(){
+      const d = getToday();
+      const box = document.getElementById("quickBadges");
+      box.innerHTML = "";
+      if(!d.badges.length){
+        box.innerHTML = `<div class="list-item">${lang==="ar" ? "أكمل مهامًا لتظهر الشارات." : "Complete tasks to show badges."}</div>`;
+        return;
+      }
+      d.badges.forEach(b=>{
+        const el = document.createElement("div");
+        el.className = "list-item";
+        el.innerHTML = `<strong>${b.icon} ${b.label}</strong><div class="muted">${lang==="ar" ? "إنجاز يستحق الفخر!" : "Achievement worth celebrating!"}</div>`;
+        box.appendChild(el);
+      });
+    }
+
+    function renderPoints(){
+      const d = getToday();
+      document.getElementById("ptTotal").textContent = nf(d.points);
+      document.getElementById("stTotal").textContent = nf(d.stars);
+      document.getElementById("cmpTotal").textContent = nf(doneCount(d));
+      document.getElementById("rateTotal").textContent = nf(completionRate(d)) + "%";
+
+      const starsRow = document.getElementById("starsRow");
+      starsRow.innerHTML = d.stars ? Array.from({length:d.stars}).map(() => "⭐").join(" ") : (lang==="ar" ? "أنجز مهامًا لتظهر نجومك" : "Complete tasks to see stars");
+
+      const list = document.getElementById("badgesList");
+      list.innerHTML = "";
+      if(!d.badges.length){
+        list.innerHTML = `<div class="list-item">${lang==="ar" ? "لا توجد شارات بعد." : "No badges yet."}</div>`;
+      }else{
+        d.badges.forEach(b=>{
+          const el = document.createElement("div");
+          el.className = "list-item";
+          el.innerHTML = `<strong>${b.icon} ${b.label}</strong><div class="muted">${lang==="ar" ? "استمر على هذا التقدم." : "Keep up this great progress."}</div>`;
+          list.appendChild(el);
+        });
+      }
+    }
+
+    function renderReport(){
+      const d = getToday();
+      const total = d.tasks.length;
+      const done = doneCount(d);
+      const rate = completionRate(d);
+
+      document.getElementById("rptDone").textContent = nf(done);
+      document.getElementById("rptUndone").textContent = nf(total - done);
+      document.getElementById("rptPct").textContent = nf(rate) + "%";
+      document.getElementById("rptMsg").textContent =
+        rate >= 80 ? (lang==="ar" ? "مذهل! لقد أنهيت معظم مهامك اليوم يا بطل!" : "Amazing! You completed most tasks today!")
+        : rate >= 50 ? (lang==="ar" ? "عمل رائع! حققت تقدمًا ممتازًا اليوم." : "Great work! Excellent progress today.")
+        : rate > 0 ? (lang==="ar" ? "بداية جميلة، وغدًا سيكون أفضل." : "A nice start — tomorrow will be even better.")
+        : (lang==="ar" ? "اليوم فرصة جديدة. ابدأ بمهمة صغيرة وستنجح." : "A new day is a new chance. Start small and you'll succeed.");
+
+      const list = document.getElementById("notDoneList");
+      list.innerHTML = "";
+      const pending = d.tasks.filter(x=>!x.done);
+      if(!pending.length){
+        list.innerHTML = `<div class="list-item"><strong>${lang==="ar" ? "ما شاء الله" : "Well done"}</strong><div>${lang==="ar" ? "أنجزت جميع المهام اليوم." : "All tasks completed today!"}</div></div>`;
+      }else{
+        pending.forEach(task=>{
+          const el = document.createElement("div");
+          el.className = "list-item";
+          el.innerHTML = `<strong>${task.icon} ${lang==="ar" ? task.ar : task.en}</strong><div class="muted">${lang==="ar" ? "هذه المهمة ما زالت بانتظار الإنجاز." : "Still pending."}</div>`;
+          list.appendChild(el);
+        });
+      }
+    }
+
+    function renderSettings(){
+      const d = getToday();
+      document.getElementById("mobileInput").value = state.settings.mobileMin;
+      document.getElementById("psInput").value = state.settings.psMin;
+      document.getElementById("sleepInput").value = state.settings.sleepTime;
+      document.getElementById("pinLabel").textContent = state.settings.pin;
+
+      const list = document.getElementById("settingsList");
+      list.innerHTML = "";
+      d.tasks.forEach(task=>{
+        const el = document.createElement("div");
+        el.className = "list-item";
+        el.innerHTML = `
+          <strong>${task.icon} ${lang==="ar" ? task.ar : task.en}</strong>
+          <div class="muted">${lang==="ar" ? "القيمة" : "Value"}: ${task.points} ${lang==="ar" ? "نقطة" : "pts"}</div>
+          ${task.id.startsWith("c-") ? `<div class="actions" style="margin-top:8px"><button class="btn btn-danger" onclick="removeTask('${task.id}')">${lang==="ar" ? "حذف" : "Delete"}</button></div>` : ""}
+        `;
+        list.appendChild(el);
+      });
+    }
+
+    function renderAll(){
+      applyI18n();
+      updateLangButtons();
+      renderMain();
+      renderTasks();
+      renderWeek();
+      renderBadges();
+      renderPoints();
+      renderReport();
+      renderSettings();
+      const n = document.getElementById("childNameInput");
+      if(n && state.childName) n.value = state.childName;
+    }
+
+    function celebrate(){
+      if(typeof confetti === "undefined") return;
+      confetti({particleCount:80,spread:60,startVelocity:44,origin:{x:.5,y:.35},colors:["#6c63ff","#ffd166","#ff6fae","#4dabf7","#22c55e"]});
+      setTimeout(()=>confetti({particleCount:45,spread:70,startVelocity:38,origin:{x:.2,y:.42},colors:["#6c63ff","#ffd166","#ff6fae"]}),180);
+      setTimeout(()=>confetti({particleCount:45,spread:70,startVelocity:38,origin:{x:.8,y:.42},colors:["#4dabf7","#22c55e","#ffd166"]}),320);
+    }
+
+    let deferredPrompt = null;
+    window.addEventListener("beforeinstallprompt",e=>{
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById("pwaBanner").classList.add("show");
+    });
+
+    document.getElementById("btnInstall").addEventListener("click",async()=>{
+      if(!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      document.getElementById("pwaBanner").classList.remove("show");
+      celebrate();
+    });
+
+    if("serviceWorker" in navigator){
+      const sw = `
+        const C='hero-story-v2-cache';
+        self.addEventListener('install',e=>{
+          e.waitUntil(caches.open(C).then(c=>c.addAll(['.'])));
+          self.skipWaiting();
+        });
+        self.addEventListener('activate',e=>{
+          e.waitUntil(caches.keys().then(ks=>Promise.all(ks.map(k=>k!==C?caches.delete(k):null))));
+          self.clients.claim();
+        });
+        self.addEventListener('fetch',e=>{
+          e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match('.'))));
+        });
+      `;
+      const blob = new Blob([sw], {type:"text/javascript"});
+      navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
+    }
+
+    setLang(lang);
+    renderAll();
+  </script>
+</body>
+</html>
